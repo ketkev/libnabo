@@ -21,6 +21,8 @@ if (NOT GREP_VERSION_RESULT EQUAL 0)
 endif (NOT GREP_VERSION_RESULT EQUAL 0)
 string(REGEX REPLACE ".*\"(.*)\".*" "\\1" PROJECT_VERSION "${PROJECT_VERSION}" )
 
+# Add CPM (CMake Package Manager)
+include(cmake/CPM.cmake)
 if (NOT CMAKE_BUILD_TYPE)
 	message("-- No build type specified; defaulting to CMAKE_BUILD_TYPE=Release.")
 	set(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -100,17 +102,6 @@ if (USE_OPEN_MP)
 	endif(OPENMP_FOUND)
 endif (USE_OPEN_MP)
 
-# eigen 2 or 3
-find_path(EIGEN_INCLUDE_DIR Eigen/Core
-	/usr/local/include/eigen3
-	/usr/local/include/eigen2
-	/usr/local/include/eigen
-	/usr/include/eigen3
-	/usr/include/eigen2
-	/usr/include/eigen
-	/opt/local/include/eigen3
-)
-
 # optionally, opencl
 # OpenCL disabled as its code is not up-to-date with API
 set(USE_OPEN_CL FALSE CACHE BOOL "Set to TRUE to look for OpenCL")
@@ -140,8 +131,16 @@ else (USE_OPEN_CL)
 	message("OpenCL disabled, not looking for it")
 endif (USE_OPEN_CL)
 
+#Find eigen 
+CPMAddPackage(
+        NAME eigen
+        GITLAB_REPOSITORY libeigen/eigen
+        GIT_TAG 3.3.9
+        DOWNLOAD_ONLY True
+)
+
 # include all libs so far
-include_directories(${CMAKE_SOURCE_DIR} ${EIGEN_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR} ${eigen_SOURCE_DIR})
 
 # main nabo lib
 set(NABO_SRC
