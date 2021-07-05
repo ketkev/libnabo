@@ -90,19 +90,6 @@ else ()
     set(CMAKE_CXX_STANDARD 11)
 endif ()
 
-# openmp
-set(USE_OPEN_MP TRUE CACHE BOOL "Set to FALSE to not use OpenMP")
-if (USE_OPEN_MP)
-    find_package(OpenMP)
-    if (OPENMP_FOUND)
-        add_definitions(-fopenmp -DHAVE_OPENMP)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        if (CMAKE_COMPILER_IS_GNUCC)
-            set(EXTRA_LIBS ${EXTRA_LIBS} gomp)
-        endif (CMAKE_COMPILER_IS_GNUCC)
-    endif (OPENMP_FOUND)
-endif (USE_OPEN_MP)
-
 # optionally, opencl
 # OpenCL disabled as its code is not up-to-date with API
 set(USE_OPEN_CL FALSE CACHE BOOL "Set to TRUE to look for OpenCL")
@@ -160,6 +147,16 @@ else (SHARED_LIBS)
     install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib)
 endif (SHARED_LIBS)
 set_target_properties(${LIB_NAME} PROPERTIES VERSION "${PROJECT_VERSION}" SOVERSION 1)
+
+# openmp
+set(USE_OPEN_MP TRUE CACHE BOOL "Set to FALSE to not use OpenMP")
+if (USE_OPEN_MP)
+    find_package(OpenMP)
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(${LIB_NAME} PUBLIC OpenMP::OpenMP_CXX)
+        message("-- OpenMP found - using OpenMP with nabo")
+    endif()
+endif (USE_OPEN_MP)
 
 # create doc before installing
 set(DOC_INSTALL_TARGET "share/doc/${PROJECT_NAME}/api" CACHE STRING "Target where to install doxygen documentation")
